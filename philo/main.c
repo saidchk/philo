@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apple <apple@student.42.fr>                +#+  +:+       +#+        */
+/*   By: schakkou <schakkou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 15:43:08 by apple             #+#    #+#             */
-/*   Updated: 2024/11/03 19:43:39 by apple            ###   ########.fr       */
+/*   Updated: 2024/11/09 20:02:14 by schakkou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void	*routine(void *ptr)
 
 void	if_full(int *counter, t_philo_info *philo)
 {
-	*counter++;
+	(*counter)++;
 	philo->last_meal = -1;
 }
 
@@ -68,7 +68,7 @@ void	is_dead(t_philo_info *data_philos)
 			pthread_mutex_lock(data_philos[i].dead_lock);
 			*data_philos[i].is_dead = true;
 			pthread_mutex_unlock(data_philos[i].dead_lock);
-			display_state(&data_philos[i], "died");
+			printf("%lims %i is died\n", curr +  data_philos[i].last_meal -  data_philos[i].start_time, i + 1);
 			break ;
 		}
 		usleep(60);

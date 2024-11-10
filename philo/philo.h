@@ -6,7 +6,7 @@
 /*   By: apple <apple@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 15:42:55 by apple             #+#    #+#             */
-/*   Updated: 2024/11/03 18:57:06 by apple            ###   ########.fr       */
+/*   Updated: 2024/11/10 17:08:26 by apple            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # include <sys/time.h>
 # include <unistd.h>
 
-typedef struct
+typedef struct arg
 {
 	int				number_of_philos;
 	long int		max_meals;
@@ -39,8 +39,8 @@ typedef struct philo_info
 	long int		last_meal;
 	int				*is_dead;
 	long int		start_time;
-	pthread_mutex_t	meal_lock;
-	pthread_mutex_t	writing_lock;
+	pthread_mutex_t	*meal_lock;
+	pthread_mutex_t	*writing_lock;
 	pthread_mutex_t	*dead_lock;
 	pthread_mutex_t	*right_fork;
 	pthread_mutex_t	*left_fork;
@@ -50,6 +50,8 @@ typedef struct philo_info
 typedef struct s_program
 {
 	int				is_dead;
+	pthread_mutex_t	meal_lock;
+	pthread_mutex_t	write_lock;
 	pthread_mutex_t	dead_lock;
 	t_philo_info	*philos;
 }					t_data;
@@ -64,5 +66,6 @@ void				one_philo(t_philo_info *philo);
 void				go_to_sleep(t_philo_info *philo);
 void				init_time(t_philo_info *philo, t_arguments arg,
 						long int start);
+void				*routine(void *ptr);
 
 #endif

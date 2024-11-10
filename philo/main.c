@@ -3,51 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: schakkou <schakkou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: apple <apple@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 15:43:08 by apple             #+#    #+#             */
-/*   Updated: 2024/11/09 20:02:14 by schakkou         ###   ########.fr       */
+/*   Updated: 2024/11/10 19:01:40 by apple            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	*routine(void *ptr)
+static void	if_full(int *counter, t_philo_info *philo)
 {
-	t_philo_info	*philo;
-
-	philo = (t_philo_info *)(ptr);
-	if (philo->number_of_philos == 1)
-		return (one_philo(philo), NULL);
-	while (!check_if_simulation_end(philo) && philo->max_meals != 0)
-	{
-		if (philo->id % 2 == 0)
-		{
-			pthread_mutex_lock(philo->right_fork);
-			display_state(philo, "has taken a fork");
-			pthread_mutex_lock(philo->left_fork);
-			display_state(philo, "has taken a fork");
-			go_to_eat(philo);
-		}
-		else
-		{
-			pthread_mutex_lock(philo->left_fork);
-			display_state(philo, "has taken a fork");
-			pthread_mutex_lock(philo->right_fork);
-			display_state(philo, "has taken a fork");
-			go_to_eat(philo);
-		}
-	}
-	return (NULL);
-}
-
-void	if_full(int *counter, t_philo_info *philo)
-{
+	pthread_mutex_lock(philo->meal_lock);
+	if (philo->max_meals > 0)
+		return ;
+	pthread_mutex_unlock(philo->meal_lock);
 	(*counter)++;
 	philo->last_meal = -1;
+
 }
 
-void	is_dead(t_philo_info *data_philos)
+static void	is_dead(t_philo_info *data_philos)
 {
 	int			i;
 	long int	curr;
@@ -60,23 +36,23 @@ void	is_dead(t_philo_info *data_philos)
 		if (i == data_philos[0].number_of_philos)
 			i = 0;
 		curr = get_time() - data_philos[i].last_meal;
-		if (data_philos[i].max_meals == 0 && data_philos[i].last_meal != -1)
-			if_full(&counter, &data_philos[i]);
+		if (data_philos[i].last_meal != -1 && if_full(&counter, &data_philos[i]))
+			
 		else if (data_philos[i].last_meal > 0
 			&& curr > data_philos[i].time_to_die)
 		{
 			pthread_mutex_lock(data_philos[i].dead_lock);
 			*data_philos[i].is_dead = true;
 			pthread_mutex_unlock(data_philos[i].dead_lock);
-			printf("%lims %i is died\n", curr +  data_philos[i].last_meal -  data_philos[i].start_time, i + 1);
+			printf("%lims %i is died\n", get_time() - data_philos[i].start_time, i + 1);
 			break ;
 		}
-		usleep(60);
+		usleep(70);
 		i++;
 	}
 }
 
-void	creat_threads(t_data *philo_data)
+static void	creat_threads(t_data *philo_data)
 {
 	int	number_of_philos;
 	int	i;
@@ -98,7 +74,7 @@ void	creat_threads(t_data *philo_data)
 	}
 }
 
-void	init(t_data *data_philos, pthread_mutex_t *forks, t_arguments arg)
+static void	init(t_data *data_philos, pthread_mutex_t *forks, t_arguments arg)
 {
 	int			i;
 	long int	start;
@@ -107,13 +83,15 @@ void	init(t_data *data_philos, pthread_mutex_t *forks, t_arguments arg)
 	data_philos->is_dead = false;
 	start = get_time();
 	pthread_mutex_init(&data_philos->dead_lock, NULL);
+	pthread_mutex_init(&data_philos->meal_lock, NULL);
+	pthread_mutex_init(&data_philos->write_lock, NULL);
 	while (i < arg.number_of_philos)
 	{
-		pthread_mutex_init(&data_philos->philos[i].meal_lock, NULL);
 		pthread_mutex_init(&forks[i], NULL);
-		pthread_mutex_init(&data_philos->philos[i].writing_lock, NULL);
 		init_time(&data_philos->philos[i], arg, start);
+		data_philos->philos[i].writing_lock = &data_philos->write_lock;
 		data_philos->philos[i].dead_lock = &data_philos->dead_lock;
+		data_philos->philos[i].meal_lock = &data_philos->meal_lock;
 		data_philos->philos[i].right_fork = &forks[i];
 		data_philos->philos[i].left_fork = &forks[i + 1];
 		data_philos->philos[i].is_dead = &data_philos->is_dead;
@@ -145,5 +123,8 @@ int	main(int ac, char **av)
 		pthread_mutex_destroy(&forks[i]);
 		i++;
 	}
+	pthread_mutex_destroy(&philo_data.dead_lock);
+	pthread_mutex_destroy(&philo_data.write_lock);
+	pthread_mutex_destroy(&philo_data.meal_lock);
 	return (0);
 }

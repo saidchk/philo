@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apple <apple@student.42.fr>                +#+  +:+       +#+        */
+/*   By: schakkou <schakkou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 15:42:55 by apple             #+#    #+#             */
-/*   Updated: 2024/11/10 17:08:26 by apple            ###   ########.fr       */
+/*   Updated: 2024/11/10 20:57:11 by schakkou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ typedef struct philo_info
 	long int		last_meal;
 	int				*is_dead;
 	long int		start_time;
-	pthread_mutex_t	*meal_lock;
+	pthread_mutex_t	meal_lock;
 	pthread_mutex_t	*writing_lock;
 	pthread_mutex_t	*dead_lock;
 	pthread_mutex_t	*right_fork;

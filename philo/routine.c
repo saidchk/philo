@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apple <apple@student.42.fr>                +#+  +:+       +#+        */
+/*   By: schakkou <schakkou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/03 01:11:10 by apple             #+#    #+#             */
-/*   Updated: 2024/11/10 17:11:34 by apple            ###   ########.fr       */
+/*   Updated: 2024/11/10 21:04:31 by schakkou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ void	go_to_eat(t_philo_info *philo)
 	display_state(philo, "is eating");
 	philo->last_meal = get_time();
 	ft_usleep(philo->time_to_eat);
-	pthread_mutex_lock(philo->meal_lock);
+	//pthread_mutex_lock(&philo->meal_lock);
 	philo->max_meals--;
-	pthread_mutex_unlock(philo->meal_lock);
+	//pthread_mutex_unlock(&philo->meal_lock);
 	pthread_mutex_unlock(philo->right_fork);
 	pthread_mutex_unlock(philo->left_fork);
 	go_to_sleep(philo);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: apple <apple@student.42.fr>                +#+  +:+       +#+        */
+/*   By: schakkou <schakkou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 15:43:08 by apple             #+#    #+#             */
-/*   Updated: 2024/11/10 19:01:40 by apple            ###   ########.fr       */
+/*   Updated: 2024/11/11 18:21:21 by schakkou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,15 @@
 
 static void	if_full(int *counter, t_philo_info *philo)
 {
-	pthread_mutex_lock(philo->meal_lock);
-	if (philo->max_meals > 0)
-		return ;
-	pthread_mutex_unlock(philo->meal_lock);
-	(*counter)++;
-	philo->last_meal = -1;
-
+	// pthread_mutex_lock(philo->meal_lock);
+	// if (philo->max_meals == 0)
+	// {
+		(*counter)++;
+		philo->last_meal = -1;
+	// 	return (/*pthread_mutex_unlock(philo->meal_lock),*/ 1);
+	// }
+	// pthread_mutex_unlock(philo->meal_lock);
+	//return (0);
 }
 
 static void	is_dead(t_philo_info *data_philos)
@@ -33,18 +35,18 @@ static void	is_dead(t_philo_info *data_philos)
 	counter = 0;
 	while (counter != data_philos[0].number_of_philos)
 	{
-		if (i == data_philos[0].number_of_philos)
-			i = 0;
+		i = i % 5;
 		curr = get_time() - data_philos[i].last_meal;
-		if (data_philos[i].last_meal != -1 && if_full(&counter, &data_philos[i]))
-			
+		if (data_philos[i].last_meal != -1 && data_philos[i].max_meals == 0)
+			if_full(&counter, &data_philos[i]);
 		else if (data_philos[i].last_meal > 0
 			&& curr > data_philos[i].time_to_die)
 		{
 			pthread_mutex_lock(data_philos[i].dead_lock);
 			*data_philos[i].is_dead = true;
 			pthread_mutex_unlock(data_philos[i].dead_lock);
-			printf("%lims %i is died\n", get_time() - data_philos[i].start_time, i + 1);
+			printf("%lims %i is died\n", get_time() - 
+				data_philos[i].start_time, i + 1);
 			break ;
 		}
 		usleep(70);
@@ -83,7 +85,7 @@ static void	init(t_data *data_philos, pthread_mutex_t *forks, t_arguments arg)
 	data_philos->is_dead = false;
 	start = get_time();
 	pthread_mutex_init(&data_philos->dead_lock, NULL);
-	pthread_mutex_init(&data_philos->meal_lock, NULL);
+	//pthread_mutex_init(&data_philos->meal_lock, NULL);
 	pthread_mutex_init(&data_philos->write_lock, NULL);
 	while (i < arg.number_of_philos)
 	{
@@ -91,7 +93,6 @@ static void	init(t_data *data_philos, pthread_mutex_t *forks, t_arguments arg)
 		init_time(&data_philos->philos[i], arg, start);
 		data_philos->philos[i].writing_lock = &data_philos->write_lock;
 		data_philos->philos[i].dead_lock = &data_philos->dead_lock;
-		data_philos->philos[i].meal_lock = &data_philos->meal_lock;
 		data_philos->philos[i].right_fork = &forks[i];
 		data_philos->philos[i].left_fork = &forks[i + 1];
 		data_philos->philos[i].is_dead = &data_philos->is_dead;
@@ -125,6 +126,5 @@ int	main(int ac, char **av)
 	}
 	pthread_mutex_destroy(&philo_data.dead_lock);
 	pthread_mutex_destroy(&philo_data.write_lock);
-	pthread_mutex_destroy(&philo_data.meal_lock);
 	return (0);
 }

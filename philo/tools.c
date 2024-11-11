@@ -6,7 +6,7 @@
 /*   By: apple <apple@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 15:29:06 by apple             #+#    #+#             */
-/*   Updated: 2024/11/10 17:12:26 by apple            ###   ########.fr       */
+/*   Updated: 2024/11/11 16:36:03 by apple            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,6 @@ long int	get_time(void)
 	return (curr_time.tv_sec * 1000 + (curr_time.tv_usec / 1000));
 }
 
-void	ft_usleep(useconds_t time)
-{
-	long int	start;
-
-	start = get_time();
-	while (time > (get_time() - start))
-	{
-		usleep(50);
-	}
-}
-
 int	check_if_simulation_end(t_philo_info *philo)
 {
 	pthread_mutex_lock(philo->dead_lock);
@@ -38,6 +27,17 @@ int	check_if_simulation_end(t_philo_info *philo)
 		return (pthread_mutex_unlock(philo->dead_lock), 1);
 	pthread_mutex_unlock(philo->dead_lock);
 	return (0);
+}
+
+void	ft_usleep(long int time, t_philo_info *philo)
+{
+	long int	start;
+
+	start = get_time();
+	while (time > (get_time() - start) && !check_if_simulation_end(philo))
+	{
+		usleep(50);
+	}
 }
 
 void	display_state(t_philo_info *philo, char *state)

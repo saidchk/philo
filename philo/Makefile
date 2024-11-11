@@ -1,5 +1,5 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror -fsanitize=address -g
+CC = cc
+CFLAGS = -Wall -Wextra -Werror -fsanitize=thread -g
 
 NAME = philo
 SRC = main.c \
@@ -13,9 +13,6 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $@
-
-$(OBJ): %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	@rm -rf $(OBJ)
